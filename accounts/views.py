@@ -123,37 +123,79 @@ def filter(request):
     return render(request, "transactions.html", {'categories': categories, 'transactions': transactions, 'fname': fname, 'lname': lname})
 
 def users(request):
-    users = Account.objects.all().values('first_name', 'last_name', 'email', 'username')
-    users_list = list(users)
-    return JsonResponse(users_list, safe=False)
+    if request.method == 'GET':
+        if 'ACCESS_TOKEN' in request.COOKIES.keys():
+            id = request.COOKIES['ACCESS_TOKEN']
 
+            user = Account.objects.filter(id=id)
+            if user:
+                users = Account.objects.all().values('first_name', 'last_name', 'email', 'username')
+                users_list = list(users)
+                return JsonResponse(users_list, safe=False)
+        
+        return JsonResponse("Access denied", safe=False)
 def user(request, id):
-    user = Account.objects.filter(id=id).values('first_name', 'last_name', 'email', 'username')
-    user_list = list(user)
-    return JsonResponse(user_list, safe=False)
+    if request.method == 'GET':
+        if 'ACCESS_TOKEN' in request.COOKIES.keys():
+            id = request.COOKIES['ACCESS_TOKEN']
+
+            user = Account.objects.filter(id=id)
+            if user:
+                user = Account.objects.filter(id=id).values('first_name', 'last_name', 'email', 'username')
+                user_list = list(user)
+                return JsonResponse(user_list, safe=False)
+        return JsonResponse("Access denied", safe=False)
 
 def user_transactions(request, id):
-    user = Account.objects.filter(id=id).values('username')
-    transactions = Transaction.objects.filter(username=user[0]['username'])
-    transaction_list = list(transactions)
-    return JsonResponse(transaction_list, safe=False)
+    if request.method == 'GET':
+        if 'ACCESS_TOKEN' in request.COOKIES.keys():
+            id = request.COOKIES['ACCESS_TOKEN']
+
+            user = Account.objects.filter(id=id)
+            if user:
+                user = Account.objects.filter(id=id).values('username')
+                transactions = Transaction.objects.filter(username=user[0]['username'])
+                transaction_list = list(transactions)
+                return JsonResponse(transaction_list, safe=False)
+        return JsonResponse("Access denied. User is not authorized", safe=False)
 
 def categories(request):
-    categories = Category.objects.all().values('name')
-    category_list = list()
-    return JsonResponse(category_list, safe=False)
+    if request.method == 'GET':
+        if 'ACCESS_TOKEN' in request.COOKIES.keys():
+            id = request.COOKIES['ACCESS_TOKEN']
+
+            user = Account.objects.filter(id=id)
+            if user:
+                categories = Category.objects.all().values('name')
+                category_list = list()
+                return JsonResponse(category_list, safe=False)
+        return JsonResponse("Access denied. User is not authorized", safe=False)
 
 def category(request, id):
-    category = Category.objects.filter(id=id)
-    c_list = list(category)
-    return JsonResponse(c_list, safe=False)
+    if request.method == 'GET':
+        if 'ACCESS_TOKEN' in request.COOKIES.keys():
+            id = request.COOKIES['ACCESS_TOKEN']
+
+            user = Account.objects.filter(id=id)
+            if user:
+                category = Category.objects.filter(id=id)
+                c_list = list(category)
+                return JsonResponse(c_list, safe=False)
+        return JsonResponse("Access denied. User is not authorized", safe=False)
 
 def cat_transactions(request, id, category_id):
-    user = Account.objects.filter(id=id).values('username')
-    category = Category.objects.filter(id=category_id)
-    if category:
-        transactions = Transaction.objects.filter(username=user[0]['username'],transaction_type=category[0]['name'])
-        t_list = list(transactions)
-        return JsonResponse(t_list, safe=False)
-    else:
-        return JsonResponse([], safe=False)
+    if request.method == 'GET':
+        if 'ACCESS_TOKEN' in request.COOKIES.keys():
+            id = request.COOKIES['ACCESS_TOKEN']
+
+            user = Account.objects.filter(id=id)
+            if user:
+                user = Account.objects.filter(id=id).values('username')
+                category = Category.objects.filter(id=category_id)
+                if category:
+                    transactions = Transaction.objects.filter(username=user[0]['username'],transaction_type=category[0]['name'])
+                    t_list = list(transactions)
+                    return JsonResponse(t_list, safe=False)
+                else:
+                    return JsonResponse([], safe=False)
+        return JsonResponse("Access denied. User is not authorized", safe=False)
