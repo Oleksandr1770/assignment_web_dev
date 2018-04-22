@@ -3,15 +3,17 @@ from django.views.decorators.csrf import csrf_protect
 from passlib.hash import django_pbkdf2_sha256 as handler
 from django.shortcuts import redirect
 from .models import *
-from django.http import HttpResponse, response
-
+from django.http import HttpResponse
+from django.http import JsonResponse
+from django.template import loader
+from django.shortcuts import render_to_response
 # Create your views here.
 def home(request):
     return render(request, 'index.html')
 
 def dashboard(request):
     try:
-        session_id = request.session['user_id']
+        session_id = request.COOKIES.get('ACCESS_TOKEN')
         account = Account.objects.filter(id=session_id)[:1]
         transactions = Transaction.objects.filter(username=account[0].username).order_by('-id')
         fname = account[0].first_name
@@ -22,7 +24,7 @@ def dashboard(request):
 
 def transactions(request):
     try:
-        session_id = request.session['user_id']
+        session_id = request.COOKIES['ACCESS_TOKEN']
         account = Account.objects.filter(id=session_id)[:1]
         transactions = Transaction.objects.filter(username=account[0].username).order_by('-id')
         fname = account[0].first_name
@@ -34,7 +36,7 @@ def transactions(request):
 
 def add_transaction(request):
     if request.method == "POST":
-        session_id = request.session['user_id']
+        session_id = request.COOKIES['ACCESS_TOKEN']
         account = Account.objects.filter(id=session_id)[:1]
         value = request.POST.get('value')
         transaction_type = request.POST.get('transaction_type')
@@ -46,9 +48,9 @@ def add_transaction(request):
         return redirect(transactions)
     return render(request, transactions)
 
-def categories(request):
+def categories_page(request):
     try:
-        session_id = request.session['user_id']
+        session_id = request.COOKIES['ACCESS_TOKEN']
         account = Account.objects.filter(id=session_id)[:1]
         categories = Category.objects.filter();
         fname = account[0].first_name
@@ -63,8 +65,8 @@ def add_category(request):
         category = Category(name=name)
         if (category.name in [None, '']) is False:
             category.save()
-        return redirect(categories)
-    return render(request, categories)
+        return redirect(categories_page)
+    return render(request, categories_page)
 
 @csrf_protect
 def login(request):
@@ -78,13 +80,21 @@ def login(request):
             if is_password_correct is False:
                 return redirect(home)
             else:
-                request.session['user_id'] = user[0].id
-                return redirect(dashboard)
+                account = Account.objects.filter(username=username)[:1]
+                transactions = Transaction.objects.filter(username=account[0].username).order_by('-id')
+                fname = account[0].first_name
+                lname = account[0].last_name
+                response = HttpResponse()
+                response = render(request, 'dashboard.html', {'transactions': transactions,'fname': fname, 'lname': lname})
+                response.set_cookie('ACCESS_TOKEN', user[0].id)
+                return response
     return render(request, 'index.html')
 
 def logout(request):
-    del request.session['user_id']
-    return redirect(home)
+    response = HttpResponse()
+    response = render(request, 'index.html')
+    response.set_cookie('ACCESS_TOKEN', '')
+    return response
 
 @csrf_protect
 def register(request):
@@ -103,7 +113,7 @@ def register(request):
 @csrf_protect
 def filter(request):
     if request.method == "POST":
-        session_id = request.session['user_id']
+        session_id = request.COOKIES['ACCESS_TOKEN']
         account = Account.objects.filter(id=session_id)[:1]
         fname = account[0].first_name
         lname = account[0].last_name
@@ -111,3 +121,39 @@ def filter(request):
         transactions = Transaction.objects.filter(transaction_type=selected_type, username=account[0].username);
         categories = Category.objects.filter();
     return render(request, "transactions.html", {'categories': categories, 'transactions': transactions, 'fname': fname, 'lname': lname})
+
+def users(request):
+    users = Account.objects.all().values('first_name', 'last_name', 'email', 'username')
+    users_list = list(users)
+    return JsonResponse(users_list, safe=False)
+
+def user(request, id):
+    user = Account.objects.filter(id=id).values('first_name', 'last_name', 'email', 'username')
+    user_list = list(user)
+    return JsonResponse(user_list, safe=False)
+
+def user_transactions(request, id):
+    user = Account.objects.filter(id=id).values('username')
+    transactions = Transaction.objects.filter(username=user[0]['username'])
+    transaction_list = list(transactions)
+    return JsonResponse(transaction_list, safe=False)
+
+def categories(request):
+    categories = Category.objects.all().values('name')
+    category_list = list()
+    return JsonResponse(category_list, safe=False)
+
+def category(request, id):
+    category = Category.objects.filter(id=id)
+    c_list = list(category)
+    return JsonResponse(c_list, safe=False)
+
+def cat_transactions(request, id, category_id):
+    user = Account.objects.filter(id=id).values('username')
+    category = Category.objects.filter(id=category_id)
+    if category:
+        transactions = Transaction.objects.filter(username=user[0]['username'],transaction_type=category[0]['name'])
+        t_list = list(transactions)
+        return JsonResponse(t_list, safe=False)
+    else:
+        return JsonResponse([], safe=False)
