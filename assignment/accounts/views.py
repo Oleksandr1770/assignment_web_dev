@@ -2,8 +2,10 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_protect
 from passlib.hash import django_pbkdf2_sha256 as handler
 from django.shortcuts import redirect
+from django.contrib.auth.models import User
 from .models import *
 from django.http import HttpResponse, response
+
 
 # Create your views here.
 def home(request):
@@ -79,6 +81,7 @@ def login(request):
                 return redirect(home)
             else:
                 request.session['user_id'] = user[0].id
+                request.data
                 return redirect(dashboard)
     return render(request, 'index.html')
 
@@ -111,3 +114,11 @@ def filter(request):
         transactions = Transaction.objects.filter(transaction_type=selected_type, username=account[0].username);
         categories = Category.objects.filter();
     return render(request, "transactions.html", {'categories': categories, 'transactions': transactions, 'fname': fname, 'lname': lname})
+
+
+
+class CustomObtainAuthToken():
+    def post(self, request, *args, **kwargs):
+        resoinse = super(CustomObtainAuthToken, self).post(request, *args, **kwargs)
+        token = "qazwsx"
+        return render(request, 'index.html')
