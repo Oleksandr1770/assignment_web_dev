@@ -23,8 +23,8 @@ function SignInValidation(){
     var errorMessage = "";
     var errorReturn = true;
     document.getElementById("signInError").innerHTML = errorMessage;
-    var login = document.forms["signForm"]["login"].value;
-    var password = document.forms["signForm"]["password"].value;
+    var login = document.forms["signForm"]["login_name"].value;
+    var password = document.forms["signForm"]["login_password"].value;
 
     var signInPassword = String(password);
 

@@ -6,6 +6,7 @@
   {% load static %}
   <link rel = "stylesheet" type="text/css" href = "{% static 'css/style.css' %}">
   <link rel="stylesheet" type="text/css" href="{% static 'css/nextpage.css' %}">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 </head>
 <body>
   <div class="topnav">
@@ -13,25 +14,42 @@
       <h2>Add category</h2>
     </div>
     <div class = "secondDiv">
-      User1234,
-      <p>Welcome to the Editing page!</p>
+      <p>{{ fname }} {{ lname }} <a href="{% url 'logout' %}">Logout</a> </p>
     </div>
   </div>
-  <ul>
-    <li><a href="index.html">Home</a></li>
-    <li><a href="dashboard.html">Dashboard</a></li>
-    <li><a href="transactions.html">Transactions</a></li>
-    <li><a class="active" href="addCategory.html">Add transaction type</a></li>
-  </ul>
-
-  <div align="center">
-    <div class="sheet" align="center">
-      <form>
-        <label>Category name:</label>
-        <input type="text" name="category" placeholder="Category">
-        <br>
-        <input type="submit" value="Submit">
-      </form>
+  <div id="container">
+    <div class="col-sm-4">
+      <ul>
+        <li><a href="{% url 'home' %}">Home</a></li>
+        <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        <li><a href="{% url 'transactions' %}">Transactions</a></li>
+        <li><a class="active">Add transaction type</a></li>
+      </ul>
+    </div>
+    <div class="col-sm-4">
+      <div class="tableContainer">
+        <table id="dashboardTable" align="center">
+          <thead>
+              <th>Category</th>
+          </thead>
+          <tbody>
+            {% for category in categories %}
+            <tr>
+              <td>{{ category.name }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="col-sm-3">
+          <form method="post" action="{% url 'add_category' %}">
+            {% csrf_token %}
+            <label>Category name:</label>
+            <input type="text" id="category" name="category" placeholder="Category">
+            <br>
+            <input type="submit" value="Submit">
+          </form>
     </div>
   </div>
 </body>

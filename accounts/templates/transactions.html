@@ -11,7 +11,6 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-  <script type = "text/javascript" src = "js/database.js"></script>
 </head>
 
 <body>
@@ -27,38 +26,24 @@
   <div id="container">
     <div class="col-sm-2">
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="index.html">Home</a></li>
-      <li><a href="dashboard.html">Dashboard</a></li>
-      <li  class="active"><a href="transactions.html">Transactions</a></li>
-      <li><a href="addCategory.html">Add transaction type</a></li>
+      <li><a href="{% url 'home' %}">Home</a></li>
+      <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+      <li><a class="active">Transactions</a></li>
+      <li><a href="{% url 'categories' %}">Add transaction type</a></li>
     </ul>
   </div>
     <div class="col-sm-6">
     <div class="filters" align="center">
-      <b> Month: </b>
-      <select id="dateFilter" class="select-style" onchange="filter()">
-        <option value="all">All</option>
-        <option value="jan">January</option>
-        <option value="feb">February</option>
-        <option value="mar">March</option>
-        <option value="apr">April</option>
-        <option value="may">May</option>
-        <option value="jun">June</option>
-        <option value="jul">July</option>
-        <option value="aug">August</option>
-        <option value="sept">September</option>
-        <option value="oct">October</option>
-        <option value="nov">November</option>
-        <option value="dec">December</option>
-      </select>
-      <b> Transaction type: </b>
-      <select id="typesFilter" class="select-style" onchange="filter()">
-        <option value="all">All</option>
-      </select>
-      <b> Location: </b>
-      <select id="locationFilter" class="select-style" onchange="filter()">
-        <option value="all">All</option>
-      </select>
+      <form method="post" action="{% url 'filter' %}">
+        {% csrf_token %}
+        <strong> Transaction type: </strong>
+        <select name="types" class="select-style">
+          {% for category in categories %}
+          <option>{{ category.name }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" value="Filter" class="btn btn-default">Filter</button>
+      </form>
     </div>
     <div class="tableContainer">
       <table id="dashboardTable" align="center">
@@ -99,7 +84,9 @@
         <div class="form-group">
           <label for="transaction_type">Transaction Type:</label>
           <select class="custom-select" id="transaction_type" name="transaction_type">
-            <option>Ofsfwefewf</option>
+            {% for category in categories %}
+            <option>{{ category.name }}</option>
+            {% endfor %}
           </select>
           <small id="ttypeHelp" class="form-text text-muted"></small>
 

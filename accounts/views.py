@@ -27,9 +27,10 @@ def transactions(request):
         transactions = Transaction.objects.filter(username=account[0].username).order_by('-id')
         fname = account[0].first_name
         lname = account[0].last_name
+        categories = Category.objects.filter();
     except Exception as e:
         return redirect(home)
-    return render(request, 'transactions.html', {'transactions': transactions, 'fname': fname, 'lname': lname})
+    return render(request, 'transactions.html', {'transactions': transactions, 'categories':categories, 'fname': fname, 'lname': lname})
 
 def add_transaction(request):
     if request.method == "POST":
@@ -40,12 +41,30 @@ def add_transaction(request):
         location = request.POST.get('location')
         date = request.POST.get('date')
         transaction = Transaction(date=date, username=account[0].username, transaction_type=transaction_type, value=value,location=location)
-        transaction.save()
+        if (transaction.date in [None, ''] or transaction.location in [None, ''] or transaction.value in [None, '']) is False:
+            transaction.save()
         return redirect(transactions)
     return render(request, transactions)
 
 def categories(request):
-    return render(request, 'categories.html')
+    try:
+        session_id = request.session['user_id']
+        account = Account.objects.filter(id=session_id)[:1]
+        categories = Category.objects.filter();
+        fname = account[0].first_name
+        lname = account[0].last_name
+    except Exception as e:
+        return redirect(home)
+    return render(request, 'categories.html', {'categories': categories, 'fname': fname, 'lname': lname})
+
+def add_category(request):
+    if request.method == "POST":
+        name = request.POST['category']
+        category = Category(name=name)
+        if (category.name in [None, '']) is False:
+            category.save()
+        return redirect(categories)
+    return render(request, categories)
 
 @csrf_protect
 def login(request):
@@ -80,3 +99,15 @@ def register(request):
         user.save()
         return redirect(home)
     return redirect(home)
+
+@csrf_protect
+def filter(request):
+    if request.method == "POST":
+        session_id = request.session['user_id']
+        account = Account.objects.filter(id=session_id)[:1]
+        fname = account[0].first_name
+        lname = account[0].last_name
+        selected_type = request.POST['types'];
+        transactions = Transaction.objects.filter(transaction_type=selected_type, username=account[0].username);
+        categories = Category.objects.filter();
+    return render(request, "transactions.html", {'categories': categories, 'transactions': transactions, 'fname': fname, 'lname': lname})
