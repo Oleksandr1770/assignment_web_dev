@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script type = "text/javascript" src = "js/database.js"></script>
+  {% load static %}
+  <link rel = "stylesheet" type="text/css" href = "{% static 'css/style.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/nextpage.css' %}">
+</head>
+<body>
+  <div class="topnav">
+    <div class = "firstDiv">
+      <h2>Add category</h2>
+    </div>
+    <div class = "secondDiv">
+      User1234,
+      <p>Welcome to the Editing page!</p>
+    </div>
+  </div>
+  <ul>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="transactions.html">Transactions</a></li>
+    <li><a class="active" href="addCategory.html">Add transaction type</a></li>
+  </ul>
+
+  <div align="center">
+    <div class="sheet" align="center">
+      <form>
+        <label>Category name:</label>
+        <input type="text" name="category" placeholder="Category">
+        <br>
+        <input type="submit" value="Submit">
+      </form>
+    </div>
+  </div>
+</body>
+</html>

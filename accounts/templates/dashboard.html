@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {% load static %}
+  <link rel = "stylesheet" type="text/css" href = "{% static 'transactions.css' %}">
+  <link rel = "stylesheet" type="text/css" href = "{% static 'css/style.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/nextpage.css' %}">
+</head>
+<body>
+  <div class="topnav">
+    <div class = "firstDiv">
+      <h2>Dashboard</h2>
+    </div>
+    <div class = "secondDiv">
+      <p>{{ fname }} {{ lname }} <a href="{% url 'logout' %}">Logout</a> </p>
+    </div>
+  </div>
+  <ul>
+    <li><a href="{% url 'home' %}">Home</a></li>
+    <li><a class="active">Dashboard</a></li>
+    <li><a href="{% url 'transactions' %}">Transactions</a></li>
+    <li><a href="{% url 'categories' %}">Add transaction type</a></li>
+  </ul>
+
+  <div class="tableContainer">
+    <h2 class="title">Latest transactions</h2>
+    <table align="center">
+      <thead>
+          <th>ID</th>
+          <th>Username</th>
+          <th>Date</th>
+          <th>Transaction Type</th>
+          <th>Location</th>
+          <th>Value</th>
+      </thead>
+      <tbody>
+        {% for transaction in transactions %}
+        <tr>
+          <td>{{ transaction.id }}</td>
+          <td>{{ transaction.username }}</td>
+          <td>{{ transaction.date }}</td>
+          <td>{{ transaction.transaction_type }}</td>
+          <td>{{ transaction.location }}</td>
+          <td>{{ transaction.value }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>
